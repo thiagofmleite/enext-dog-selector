@@ -1,3 +1,5 @@
+import { getBreeds } from '~/services/breeds'
+
 export const state = () => ({
   breeds: []
 })
@@ -17,8 +19,7 @@ export const actions = {
     commit('setBreeds', payload)
   },
   async getAllBreeds({ dispatch }) {
-    const response = await this.$axios.$get('/breeds/list/all')
-    const { message: breeds } = response
+    const breeds = await getBreeds(this)
     dispatch('setBreeds', breeds)
     return breeds
   }
