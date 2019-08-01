@@ -1,21 +1,37 @@
 <template>
   <div class="container">
+    <section class="section">
+      <div class="has-text-centered">
+        <h1 class="title">Selecione o seu Cão</h1>
+      </div>
+    </section>
     <div class="columns">
-      <div class="column">
-        <figure class="image" v-if="image">
+      <div class="column" v-if="image">
+        <figure class="image">
           <img class="is-rounded" :src="image" />
         </figure>
+        <p :style="computedStyle">{{ name }}</p>
       </div>
       <div class="column">
         <app-field-set label="Nome">
-          <input class="input" type="text" placeholder="Normal input" />
+          <input class="input" type="text" placeholder="Nome" v-model="name" />
+        </app-field-set>
+        <app-field-set label="Fonte">
+          <app-dropdown :list="fonts" label="name" :selected="selectedFont" @select="selectFont" />
+        </app-field-set>
+        <app-field-set label="Cor do Texto">
+          <app-dropdown :list="colors" label="name" value="color" />
         </app-field-set>
         <app-field-set label="Raça">
-          <app-dropdown :list="breedList" @select="selectBreed" />
+          <app-dropdown :list="breedList" :selected="selectedBreed" @select="selectBreed" />
         </app-field-set>
         <template v-if="hasSubBreeds">
           <app-field-set label="Sub Raça">
-            <app-dropdown :list="subBreedList" @select="selectSubBreed" />
+            <app-dropdown
+              :list="subBreedList"
+              :selected="selectedSubBreed"
+              @select="selectSubBreed"
+            />
           </app-field-set>
         </template>
       </div>
@@ -43,17 +59,31 @@ export default {
     subBreedList() {
       return this.breeds[this.selectedBreed]
     },
+    fontList() {
+      return this.fonts.map(f => f.name)
+    },
     hasSubBreeds() {
       if (this.selectedBreed) {
         return !!this.subBreedList.length
       }
       return false
+    },
+    fontFamily() {
+      return this.fonts.find(f => f.name === this.selectedFont).fontFamily
+    },
+    computedStyle() {
+      return {
+        fontFamily: this.fontFamily
+      }
     }
   },
   methods: {
     ...mapActions({
       getAllBreeds: 'modules/breeds/getAllBreeds'
     }),
+    selectFont(font) {
+      this.selectedFont = font
+    },
     selectBreed(breed) {
       this.selectedSubBreed = null
       this.image = null
@@ -81,9 +111,55 @@ export default {
   },
   data() {
     return {
+      name: null,
       selectedBreed: null,
       selectedSubBreed: null,
-      image: null
+      selectedFont: 'Roboto',
+      image: null,
+      colors: [
+        {
+          name: 'Vermelho',
+          color: '#ff0000'
+        },
+        {
+          name: 'Verde',
+          color: '#00ff00'
+        },
+        {
+          name: 'Azul',
+          color: '#0000ff'
+        },
+        {
+          name: 'Roxo',
+          color: '#bd34eb'
+        },
+        {
+          name: 'Laranja',
+          color: '#eb7734'
+        }
+      ],
+      fonts: [
+        {
+          name: 'Crimson Pro',
+          fontFamily: "'Crimson Pro', serif"
+        },
+        {
+          name: 'Lacquer',
+          fontFamily: "'Lacquer', sans-serif"
+        },
+        {
+          name: 'Merriweather',
+          fontFamily: "'Merriweather', serif"
+        },
+        {
+          name: 'Saira Stencil One',
+          fontFamily: "'Saira Stencil One', cursive"
+        },
+        {
+          name: 'Roboto',
+          fontFamily: "'Roboto', sans-serif"
+        }
+      ]
     }
   },
   mounted: async function() {
